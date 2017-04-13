@@ -25,7 +25,7 @@ import string
 import logging
 import urlfetch
 
-from clusterfuzz import common
+from tool.clusterfuzz import common
 
 CLUSTERFUZZ_DIR = os.path.expanduser(os.path.join('~', '.clusterfuzz'))
 CLUSTERFUZZ_BUILDS_DIR = os.path.join(CLUSTERFUZZ_DIR, 'builds')

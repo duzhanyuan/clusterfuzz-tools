@@ -24,11 +24,11 @@ import yaml
 
 import requests
 
-from clusterfuzz import common
-from clusterfuzz import stackdriver_logging
-from clusterfuzz import testcase
-from clusterfuzz import binary_providers
-from clusterfuzz import reproducers
+from tool.clusterfuzz import common
+from tool.clusterfuzz import stackdriver_logging
+from tool.clusterfuzz import testcase
+from tool.clusterfuzz import binary_providers
+from tool.clusterfuzz import reproducers
 
 
 CLUSTERFUZZ_AUTH_HEADER = 'x-clusterfuzz-authorization'

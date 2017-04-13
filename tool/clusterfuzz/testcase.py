@@ -17,7 +17,7 @@ import os
 import zipfile
 import logging
 
-from clusterfuzz import common
+from tool.clusterfuzz import common
 
 CLUSTERFUZZ_DIR = os.path.expanduser(os.path.join('~', '.clusterfuzz'))
 CLUSTERFUZZ_TESTCASES_DIR = os.path.join(CLUSTERFUZZ_DIR, 'testcases')

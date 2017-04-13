@@ -18,36 +18,19 @@ import os
 import sys
 import unittest
 
-def execute(pattern, unsuppressed_output):
+def main():
   """Run tests."""
   suites = unittest.loader.TestLoader().discover(
-      os.path.join('test', 'clusterfuzz'),
-      pattern=pattern,
+      'tool',
+      pattern='*_test.py',
       top_level_dir='.')
 
-  result = unittest.TextTestRunner(
-      verbosity=1, buffer=(not unsuppressed_output)).run(suites)
+  result = unittest.TextTestRunner(verbosity=1, buffer=False).run(suites)
 
   if result.errors or result.failures:
     sys.exit(1)
 
 
-def main():
-  """Main entry point."""
-  parser = argparse.ArgumentParser(description='Run tests.')
-  parser.add_argument(
-      '-p', '--pattern', default='*_test.py',
-      help='Pattern to match test filenames.')
-  parser.add_argument(
-      '-u', '--unsuppressed-output', action='store_true', default=False,
-      help='Unsuppress and print STDOUT and STDERR.')
-
-  args = parser.parse_args()
-  execute(args.pattern, args.unsuppressed_output)
-
-
 if __name__ == '__main__':
-  this_directory = os.path.dirname(os.path.realpath(__file__))
-  parent_directory = os.path.dirname(this_directory)
-  sys.path.insert(0, os.path.join(parent_directory, 'shared'))
   main()
+

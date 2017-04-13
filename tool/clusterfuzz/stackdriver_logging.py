@@ -22,7 +22,7 @@ import functools
 import logging
 import traceback
 
-from clusterfuzz import common
+from tool.clusterfuzz import common
 from httplib2 import Http
 from oauth2client.service_account import ServiceAccountCredentials
 

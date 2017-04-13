@@ -26,7 +26,7 @@ import requests
 import xvfbwrapper
 import psutil
 
-from clusterfuzz import common
+from tool.clusterfuzz import common
 
 DEFAULT_GESTURE_TIME = 5
 logger = logging.getLogger('clusterfuzz')

@@ -16,8 +16,8 @@
 import os
 import mock
 
-import helpers
-from clusterfuzz import testcase
+from shared import helpers
+from tool.clusterfuzz import testcase
 
 def build_base_testcase(stacktrace_lines=None, revision=None, build_url=None,
                         window_arg='', minimized_args='', extension='.js',
@@ -99,11 +99,11 @@ class GetTestcasePathTest(helpers.ExtendedTestCase):
   def setUp(self): #pylint: disable=missing-docstring
     self.setup_fake_filesystem()
     helpers.patch(self, [
-        'clusterfuzz.common.get_stored_auth_header',
-        'clusterfuzz.common.execute',
-        'clusterfuzz.common.delete_if_exists',
+        'tool.clusterfuzz.common.get_stored_auth_header',
+        'tool.clusterfuzz.common.execute',
+        'tool.clusterfuzz.common.delete_if_exists',
         'os.listdir',
-        'clusterfuzz.testcase.Testcase.get_true_testcase_file'])
+        'tool.clusterfuzz.testcase.Testcase.get_true_testcase_file'])
     self.mock.get_stored_auth_header.return_value = 'Bearer 1a2s3d4f'
     self.testcase_dir = os.path.expanduser(os.path.join(
         '~', '.clusterfuzz', 'testcases', '12345_testcase'))

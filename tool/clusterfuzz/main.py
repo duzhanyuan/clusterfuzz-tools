@@ -16,7 +16,8 @@
 import argparse
 import importlib
 
-from clusterfuzz import local_logging
+from tool.clusterfuzz import local_logging
+
 
 def execute(argv=None):
   """The main entry point."""
@@ -48,9 +49,13 @@ def execute(argv=None):
       help='Specify the number of times to attempt reproduction')
 
   args = parser.parse_args(argv)
-  command = importlib.import_module('clusterfuzz.commands.%s' % args.command)
+  command = importlib.import_module('tool.clusterfuzz.commands.%s' % args.command)
 
   arg_dict = {k: v for k, v in vars(args).items()}
   del arg_dict['command']
 
   command.execute(**arg_dict)
+
+
+if __name__ == '__main__':
+  execute()

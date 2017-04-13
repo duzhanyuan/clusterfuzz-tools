@@ -18,8 +18,8 @@ import json
 import zipfile
 import mock
 
-from clusterfuzz import binary_providers
-import helpers
+from tool.clusterfuzz import binary_providers
+from shared import helpers
 
 class BuildRevisionToShaUrlTest(helpers.ExtendedTestCase):
   """Tests the build_revision_to_sha_url method."""
@@ -80,7 +80,7 @@ class DownloadBuildDataTest(helpers.ExtendedTestCase):
   """Tests the download_build_data test."""
 
   def setUp(self):
-    helpers.patch(self, ['clusterfuzz.common.execute'])
+    helpers.patch(self, ['tool.clusterfuzz.common.execute'])
 
     self.setup_fake_filesystem()
     self.build_url = 'https://storage.cloud.google.com/abc.zip'
@@ -144,7 +144,7 @@ class GetBinaryPathTest(helpers.ExtendedTestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'clusterfuzz.binary_providers.DownloadedBinary.get_build_directory'])
+        'tool.clusterfuzz.binary_providers.DownloadedBinary.get_build_directory'])
 
   def test_call(self):
     """Tests calling the method."""
@@ -163,13 +163,13 @@ class V8BuilderGetBuildDirectoryTest(helpers.ExtendedTestCase):
 
   def setUp(self): #pylint: disable=missing-docstring
     helpers.patch(self, [
-        'clusterfuzz.binary_providers.V8Builder.download_build_data',
-        'clusterfuzz.binary_providers.sha_from_revision',
-        'clusterfuzz.binary_providers.V8Builder.checkout_source_by_sha',
-        'clusterfuzz.binary_providers.V8Builder.build_target',
-        'clusterfuzz.common.ask',
-        'clusterfuzz.binary_providers.V8Builder.get_current_sha',
-        'clusterfuzz.common.execute'])
+        'tool.clusterfuzz.binary_providers.V8Builder.download_build_data',
+        'tool.clusterfuzz.binary_providers.sha_from_revision',
+        'tool.clusterfuzz.binary_providers.V8Builder.checkout_source_by_sha',
+        'tool.clusterfuzz.binary_providers.V8Builder.build_target',
+        'tool.clusterfuzz.common.ask',
+        'tool.clusterfuzz.binary_providers.V8Builder.get_current_sha',
+        'tool.clusterfuzz.common.execute'])
 
     self.setup_fake_filesystem()
     self.build_url = 'https://storage.cloud.google.com/abc.zip'
@@ -240,7 +240,7 @@ class DownloadedBuildGetBinaryDirectoryTest(helpers.ExtendedTestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'clusterfuzz.binary_providers.DownloadedBinary.download_build_data'])
+        'tool.clusterfuzz.binary_providers.DownloadedBinary.download_build_data'])
 
     self.setup_fake_filesystem()
     self.build_url = 'https://storage.cloud.google.com/abc.zip'
@@ -272,10 +272,10 @@ class BuildTargetTest(helpers.ExtendedTestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'clusterfuzz.binary_providers.V8Builder.setup_gn_args',
-        'clusterfuzz.binary_providers.V8Builder.get_goma_cores',
-        'clusterfuzz.common.execute',
-        'clusterfuzz.binary_providers.sha_from_revision'])
+        'tool.clusterfuzz.binary_providers.V8Builder.setup_gn_args',
+        'tool.clusterfuzz.binary_providers.V8Builder.get_goma_cores',
+        'tool.clusterfuzz.common.execute',
+        'tool.clusterfuzz.binary_providers.sha_from_revision'])
     self.mock.get_goma_cores.return_value = 120
 
   def test_correct_calls(self):
@@ -310,8 +310,8 @@ class SetupGnArgsTest(helpers.ExtendedTestCase):
   def setUp(self):
     self.setup_fake_filesystem()
     helpers.patch(self, [
-        'clusterfuzz.common.execute',
-        'clusterfuzz.binary_providers.sha_from_revision'])
+        'tool.clusterfuzz.common.execute',
+        'tool.clusterfuzz.binary_providers.sha_from_revision'])
     self.testcase_dir = os.path.expanduser(os.path.join('~', 'test_dir'))
     testcase = mock.Mock(id=1234, build_url='', revision=54321)
     self.mock_os_environment({'V8_SRC': '/chrome/source/dir'})
@@ -364,10 +364,10 @@ class CheckoutSourceByShaTest(helpers.ExtendedTestCase):
 
   def setUp(self): #pylint: disable=missing-docstring
     helpers.patch(self, [
-        'clusterfuzz.common.execute',
-        'clusterfuzz.common.check_confirm',
-        'clusterfuzz.binary_providers.sha_from_revision',
-        'clusterfuzz.binary_providers.GenericBuilder.source_dir_is_dirty'])
+        'tool.clusterfuzz.common.execute',
+        'tool.clusterfuzz.common.check_confirm',
+        'tool.clusterfuzz.binary_providers.sha_from_revision',
+        'tool.clusterfuzz.binary_providers.GenericBuilder.source_dir_is_dirty'])
     self.chrome_source = '/usr/local/google/home/user/repos/chromium/src'
     self.command = ('git fetch && git checkout 1a2s3d4f'
                     ' in %s' % self.chrome_source)
@@ -430,8 +430,8 @@ class V8BuilderOutDirNameTest(helpers.ExtendedTestCase):
   """Tests the out_dir_name builder method."""
 
   def setUp(self):
-    helpers.patch(self, ['clusterfuzz.common.execute',
-                         'clusterfuzz.binary_providers.sha_from_revision'])
+    helpers.patch(self, ['tool.clusterfuzz.common.execute',
+                         'tool.clusterfuzz.binary_providers.sha_from_revision'])
     self.mock_os_environment({'V8_SRC': '/source/dir'})
     self.sha = '1a2s3d4f5g6h'
     self.mock.sha_from_revision.return_value = self.sha
@@ -461,9 +461,9 @@ class PdfiumSetupGnArgsTest(helpers.ExtendedTestCase):
 
   def setUp(self): #pylint: disable=missing-docstring
     self.setup_fake_filesystem()
-    helpers.patch(self, ['clusterfuzz.common.execute',
-                         'clusterfuzz.binary_providers.sha_from_revision',
-                         'clusterfuzz.binary_providers.get_pdfium_sha'])
+    helpers.patch(self, ['tool.clusterfuzz.common.execute',
+                         'tool.clusterfuzz.binary_providers.sha_from_revision',
+                         'tool.clusterfuzz.binary_providers.get_pdfium_sha'])
     self.sha = '1a2s3d4f5g'
     self.mock.sha_from_revision.return_value = 'chrome_sha'
     self.mock.get_pdfium_sha = self.sha
@@ -524,11 +524,11 @@ class PdfiumBuildTargetTest(helpers.ExtendedTestCase):
 
   def setUp(self): #pylint: disable=missing-docstring
     helpers.patch(self, [
-        'clusterfuzz.binary_providers.PdfiumBuilder.setup_gn_args',
-        'clusterfuzz.common.execute',
-        'clusterfuzz.binary_providers.PdfiumBuilder.get_goma_cores',
-        'clusterfuzz.binary_providers.sha_from_revision',
-        'clusterfuzz.binary_providers.get_pdfium_sha'])
+        'tool.clusterfuzz.binary_providers.PdfiumBuilder.setup_gn_args',
+        'tool.clusterfuzz.common.execute',
+        'tool.clusterfuzz.binary_providers.PdfiumBuilder.get_goma_cores',
+        'tool.clusterfuzz.binary_providers.sha_from_revision',
+        'tool.clusterfuzz.binary_providers.get_pdfium_sha'])
     self.mock.get_goma_cores.return_value = 120
     self.mock.sha_from_revision.return_value = 'chrome_sha'
     testcase = mock.Mock(id=1234, build_url='', revision=54321)
@@ -554,10 +554,10 @@ class ChromiumBuilderTest(helpers.ExtendedTestCase):
 
   def setUp(self): #pylint: disable=missing-docstring
     helpers.patch(self, [
-        'clusterfuzz.binary_providers.sha_from_revision',
-        'clusterfuzz.common.execute',
-        'clusterfuzz.binary_providers.ChromiumBuilder.setup_gn_args',
-        'clusterfuzz.binary_providers.ChromiumBuilder.get_build_directory'])
+        'tool.clusterfuzz.binary_providers.sha_from_revision',
+        'tool.clusterfuzz.common.execute',
+        'tool.clusterfuzz.binary_providers.ChromiumBuilder.setup_gn_args',
+        'tool.clusterfuzz.binary_providers.ChromiumBuilder.get_build_directory'])
     self.mock.sha_from_revision.return_value = '1a2s3d4f5g'
     self.mock.get_build_directory.return_value = '/chromium/build/dir'
     self.testcase = mock.Mock(id=12345, build_url='', revision=4567)
@@ -588,7 +588,7 @@ class ChromiumBuilderTest(helpers.ExtendedTestCase):
   def test_no_binary_name(self):
     """Test the functionality when no binary name is provided."""
     helpers.patch(self, [
-        'clusterfuzz.binary_providers.ChromiumBuilder.get_goma_cores'])
+        'tool.clusterfuzz.binary_providers.ChromiumBuilder.get_goma_cores'])
     self.mock.get_goma_cores.return_value = 120
     stacktrace = [
         {'content': 'not correct'}, {'content': '[Environment] A = b'},
@@ -605,7 +605,7 @@ class ChromiumBuilderTest(helpers.ExtendedTestCase):
   def test_build_target(self):
     """Tests the build_target method."""
     helpers.patch(self, [
-        'clusterfuzz.binary_providers.ChromiumBuilder.get_goma_cores'])
+        'tool.clusterfuzz.binary_providers.ChromiumBuilder.get_goma_cores'])
     self.mock.get_goma_cores.return_value = 120
     self.builder.build_target()
 
@@ -623,7 +623,7 @@ class ChromiumBuilderTest(helpers.ExtendedTestCase):
     """Tests the get_binary_path method."""
 
     helpers.patch(self, [
-        'clusterfuzz.binary_providers.ChromiumBuilder.get_goma_cores'])
+        'tool.clusterfuzz.binary_providers.ChromiumBuilder.get_goma_cores'])
     self.mock.get_goma_cores.return_value = 120
     result = self.builder.get_binary_path()
     self.assertEqual(result, '/chromium/build/dir/binary')
@@ -636,8 +636,8 @@ class LibfuzzerMsanBuilderTest(helpers.ExtendedTestCase):
     """Test the prebuild_steps method."""
 
     helpers.patch(self, [
-        'clusterfuzz.common.execute',
-        'clusterfuzz.binary_providers.sha_from_revision'])
+        'tool.clusterfuzz.common.execute',
+        'tool.clusterfuzz.binary_providers.sha_from_revision'])
 
     testcase = mock.Mock(id=12345, build_url='', revision=4567)
     self.mock_os_environment({'V8_SRC': '/chrome/src'})
@@ -661,8 +661,8 @@ class CfiChromiumBuilderTest(helpers.ExtendedTestCase):
     """Test the prebuild_steps method."""
 
     helpers.patch(self, [
-        'clusterfuzz.common.execute',
-        'clusterfuzz.binary_providers.sha_from_revision'])
+        'tool.clusterfuzz.common.execute',
+        'tool.clusterfuzz.binary_providers.sha_from_revision'])
 
     testcase = mock.Mock(id=12345, build_url='', revision=4567)
     self.mock_os_environment({'V8_SRC': '/chrome/src'})
@@ -683,8 +683,8 @@ class MsanChromiumBuilderTest(helpers.ExtendedTestCase):
     """Test the prebuild_steps method."""
 
     helpers.patch(self, [
-        'clusterfuzz.common.execute',
-        'clusterfuzz.binary_providers.sha_from_revision'])
+        'tool.clusterfuzz.common.execute',
+        'tool.clusterfuzz.binary_providers.sha_from_revision'])
 
     testcase = mock.Mock(id=12345, build_url='', revision=4567)
     self.mock_os_environment({'V8_SRC': '/chrome/src'})
@@ -707,9 +707,9 @@ class GetCurrentShaTest(helpers.ExtendedTestCase):
   """Tests functionality when the rev-parse command fails."""
 
   def setUp(self):
-    helpers.patch(self, ['clusterfuzz.common.execute',
+    helpers.patch(self, ['tool.clusterfuzz.common.execute',
                          'logging.RootLogger.info',
-                         'clusterfuzz.binary_providers.sha_from_revision'])
+                         'tool.clusterfuzz.binary_providers.sha_from_revision'])
 
     self.mock.execute.side_effect = SystemExit
 
@@ -730,7 +730,7 @@ class GetGomaCoresTest(helpers.ExtendedTestCase):
   def setUp(self):
 
     helpers.patch(self, ['multiprocessing.cpu_count',
-                         'clusterfuzz.binary_providers.sha_from_revision'])
+                         'tool.clusterfuzz.binary_providers.sha_from_revision'])
 
     testcase = mock.Mock(id=12345, build_url='', revision=4567)
     binary_definition = mock.Mock(source_var='V8_SRC', binary_name='binary')

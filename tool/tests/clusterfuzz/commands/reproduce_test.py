@@ -19,11 +19,11 @@ import json
 import os
 import mock
 
-from clusterfuzz import common
-from clusterfuzz import binary_providers
-from clusterfuzz import reproducers
-from clusterfuzz.commands import reproduce
-import helpers
+from tool.clusterfuzz import common
+from tool.clusterfuzz import binary_providers
+from tool.clusterfuzz import reproducers
+from tool.clusterfuzz.commands import reproduce
+from shared import helpers
 
 
 class MaybeWarnUnreproducible(helpers.ExtendedTestCase):
@@ -48,12 +48,12 @@ class ExecuteTest(helpers.ExtendedTestCase):
     self.chrome_src = '/usr/local/google/home/user/repos/chromium/src'
     self.mock_os_environment({'V8_SRC': '/v8/src', 'CHROME_SRC': '/pdf/src'})
     helpers.patch(self, [
-        'clusterfuzz.commands.reproduce.get_testcase_info',
-        'clusterfuzz.testcase.Testcase',
-        'clusterfuzz.commands.reproduce.ensure_goma',
-        'clusterfuzz.binary_providers.DownloadedBinary',
-        'clusterfuzz.binary_providers.V8Builder',
-        'clusterfuzz.binary_providers.ChromiumBuilder'])
+        'tool.clusterfuzz.commands.reproduce.get_testcase_info',
+        'tool.clusterfuzz.testcase.Testcase',
+        'tool.clusterfuzz.commands.reproduce.ensure_goma',
+        'tool.clusterfuzz.binary_providers.DownloadedBinary',
+        'tool.clusterfuzz.binary_providers.V8Builder',
+        'tool.clusterfuzz.binary_providers.ChromiumBuilder'])
     self.response = {
         'testcase': {},
         'id': 1234,
@@ -91,7 +91,7 @@ class ExecuteTest(helpers.ExtendedTestCase):
   def test_download_no_defined_binary(self):
     """Test what happens when no binary name is defined."""
     helpers.patch(self, [
-        'clusterfuzz.commands.reproduce.get_binary_definition'])
+        'tool.clusterfuzz.commands.reproduce.get_binary_definition'])
     self.mock.get_binary_definition.return_value = mock.Mock(
         binary_name=None, sanitizer='ASAN')
     self.mock.DownloadedBinary.return_value = mock.Mock(symbolizer_path=(
@@ -124,7 +124,7 @@ class ExecuteTest(helpers.ExtendedTestCase):
     """Ensures all method calls are made correctly when downloading."""
 
     helpers.patch(self, [
-        'clusterfuzz.commands.reproduce.get_binary_definition'])
+        'tool.clusterfuzz.commands.reproduce.get_binary_definition'])
     self.mock.get_binary_definition.return_value = mock.Mock(
         binary_name='binary', sanitizer='ASAN')
     self.mock.DownloadedBinary.return_value = mock.Mock(symbolizer_path=(
@@ -156,7 +156,7 @@ class ExecuteTest(helpers.ExtendedTestCase):
     """Ensures all method calls are made correctly when building locally."""
 
     helpers.patch(self, [
-        'clusterfuzz.commands.reproduce.get_binary_definition'])
+        'tool.clusterfuzz.commands.reproduce.get_binary_definition'])
     self.mock.get_binary_definition.return_value = mock.Mock(
         kwargs={}, source_var='V8_SRC', sanitizer='ASAN')
     (self.mock.get_binary_definition.return_value.builder.return_value
@@ -189,9 +189,9 @@ class GetTestcaseInfoTest(helpers.ExtendedTestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'clusterfuzz.common.get_stored_auth_header',
-        'clusterfuzz.common.store_auth_header',
-        'clusterfuzz.commands.reproduce.get_verification_header',
+        'tool.clusterfuzz.common.get_stored_auth_header',
+        'tool.clusterfuzz.common.store_auth_header',
+        'tool.clusterfuzz.commands.reproduce.get_verification_header',
         'requests.post'])
 
   def test_correct_stored_authorization(self):
@@ -336,7 +336,7 @@ class GetVerificationHeaderTest(helpers.ExtendedTestCase):
   def setUp(self):
     helpers.patch(self, [
         'webbrowser.open',
-        'clusterfuzz.common.ask'])
+        'tool.clusterfuzz.common.ask'])
     self.mock.ask.return_value = '12345'
 
   def test_returns_correct_header(self):
@@ -358,7 +358,7 @@ class EnsureGomaTest(helpers.ExtendedTestCase):
     self.setup_fake_filesystem()
     self.mock_os_environment(
         {'GOMA_DIR': os.path.expanduser(os.path.join('~', 'goma'))})
-    helpers.patch(self, ['clusterfuzz.common.execute'])
+    helpers.patch(self, ['tool.clusterfuzz.common.execute'])
 
   def test_goma_not_installed(self):
     """Tests what happens when GOMA is not installed."""
@@ -428,7 +428,7 @@ class GetBinaryDefinitionTest(helpers.ExtendedTestCase):
   """Tests getting binary definitions."""
 
   def setUp(self):
-    helpers.patch(self, ['clusterfuzz.commands.reproduce.get_supported_jobs'])
+    helpers.patch(self, ['tool.clusterfuzz.commands.reproduce.get_supported_jobs'])
     self.mock.get_supported_jobs.return_value = {
         'chromium': {
             'libfuzzer_chrome_msan': common.BinaryDefinition(
@@ -462,7 +462,7 @@ class GetSupportedJobsTest(helpers.ExtendedTestCase):
 
   def setUp(self):
     helpers.patch(self,
-                  ['clusterfuzz.commands.reproduce.build_binary_definition'])
+                  ['tool.clusterfuzz.commands.reproduce.build_binary_definition'])
     self.mock.build_binary_definition.side_effect = KeyError
 
   def test_raise_from_key_error(self):

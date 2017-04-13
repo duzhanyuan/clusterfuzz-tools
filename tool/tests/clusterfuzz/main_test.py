@@ -16,8 +16,8 @@
 import unittest
 import mock
 
-from clusterfuzz import main
-import helpers
+from tool.clusterfuzz import main
+from shared import helpers
 
 
 class MainTest(unittest.TestCase):
@@ -25,8 +25,8 @@ class MainTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'clusterfuzz.commands.reproduce.execute',
-        'clusterfuzz.local_logging.start_loggers'
+        'tool.clusterfuzz.commands.reproduce.execute',
+        'tool.clusterfuzz.local_logging.start_loggers'
     ])
 
   def test_parse_reproduce(self):

@@ -18,8 +18,8 @@ import json
 import time
 import mock
 
-import helpers
-from clusterfuzz import stackdriver_logging
+from shared import helpers
+from tool.clusterfuzz import stackdriver_logging
 
 class TestSendLog(helpers.ExtendedTestCase):
   """Tests the send_log method to ensure all params are sent."""
@@ -27,9 +27,9 @@ class TestSendLog(helpers.ExtendedTestCase):
   def setUp(self):
     self.mock_os_environment({'USER': 'name'})
     helpers.patch(self, [
-        'clusterfuzz.stackdriver_logging.ServiceAccountCredentials',
+        'tool.clusterfuzz.stackdriver_logging.ServiceAccountCredentials',
         'httplib2.Http',
-        'clusterfuzz.stackdriver_logging.get_session_id'])
+        'tool.clusterfuzz.stackdriver_logging.get_session_id'])
 
   def test_send_stacktrace(self):
     """Test to ensure stacktrace and params are sent properly."""
@@ -132,9 +132,9 @@ class LogTest(helpers.ExtendedTestCase):
   """Tests the log method."""
 
   def setUp(self):
-    helpers.patch(self, ['clusterfuzz.stackdriver_logging.send_start',
-                         'clusterfuzz.stackdriver_logging.send_success',
-                         'clusterfuzz.stackdriver_logging.send_failure'])
+    helpers.patch(self, ['tool.clusterfuzz.stackdriver_logging.send_start',
+                         'tool.clusterfuzz.stackdriver_logging.send_success',
+                         'tool.clusterfuzz.stackdriver_logging.send_failure'])
 
   def raise_func(self):
     raise Exception('Oops')

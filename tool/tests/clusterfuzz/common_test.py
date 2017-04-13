@@ -19,8 +19,8 @@ import os
 import stat
 import mock
 
-from clusterfuzz import common
-import helpers
+from tool.clusterfuzz import common
+from shared import helpers
 
 class ConfirmTest(helpers.ExtendedTestCase):
   """Tests the confirm method."""
@@ -82,10 +82,10 @@ class ExecuteTest(helpers.ExtendedTestCase):
     helpers.patch(self, ['subprocess.Popen',
                          'logging.getLogger',
                          'logging.config.dictConfig',
-                         'clusterfuzz.common.wait_timeout',
-                         'clusterfuzz.common.interpret_ninja_output'])
+                         'tool.clusterfuzz.common.wait_timeout',
+                         'tool.clusterfuzz.common.interpret_ninja_output'])
     self.mock.dictConfig.return_value = {}
-    from clusterfuzz import local_logging
+    from tool.clusterfuzz import local_logging
     local_logging.start_loggers()
     self.lines = 'Line 1\nLine 2\nLine 3'
 
@@ -225,7 +225,7 @@ class CheckConfirmTest(helpers.ExtendedTestCase):
   """Tests the check_confirm method."""
 
   def setUp(self):
-    helpers.patch(self, ['clusterfuzz.common.confirm'])
+    helpers.patch(self, ['tool.clusterfuzz.common.confirm'])
 
   def test_answer_yes(self):
     self.mock.confirm.return_value = True
@@ -343,7 +343,7 @@ class InterpretNinjaOutputTest(helpers.ExtendedTestCase):
   """Tests the interpret_ninja_output method."""
 
   def setUp(self):
-    helpers.patch(self, ['clusterfuzz.common.print_progress_bar'])
+    helpers.patch(self, ['tool.clusterfuzz.common.print_progress_bar'])
 
   def test_invalid_string(self):
     """Ensures it doesn't try to print from an invalid input."""
@@ -400,3 +400,4 @@ class DeleteIfExistsTest(helpers.ExtendedTestCase):
     common.delete_if_exists(directory)
 
     self.assertFalse(os.path.exists(directory))
+

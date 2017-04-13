@@ -4,3 +4,5 @@
 /ENV
 /MANIFEST
 /htmlcov
+/bazel-*
+__pycache__

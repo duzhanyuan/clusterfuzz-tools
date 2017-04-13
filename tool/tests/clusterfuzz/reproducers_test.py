@@ -17,9 +17,9 @@ import os
 import json
 import mock
 
-import helpers
-from clusterfuzz import reproducers
-from clusterfuzz import common
+from shared import helpers
+from tool.clusterfuzz import reproducers
+from tool.clusterfuzz import common
 
 def patch_stacktrace_info(obj):
   """Patches get_stacktrace_info for initializing a Reproducer."""
@@ -58,7 +58,7 @@ class SetUpSymbolizersSuppressionsTest(helpers.ExtendedTestCase):
     """Ensures all the setup methods work correctly."""
 
     self.mock.dirname.return_value = '/parent/dir'
-    self.reproducer.symbolizer_path = '/parent/dir/llvm-symbolizer'
+    self.reproducer.symbolizer_path = '/parent/dir/resources/llvm-symbolizer'
     self.reproducer.environment = {
         'UBSAN_OPTIONS': ('external_symbolizer_path=/not/correct/path:other_'
                           'option=1:suppressions=/not/correct/path'),
@@ -70,14 +70,14 @@ class SetUpSymbolizersSuppressionsTest(helpers.ExtendedTestCase):
         result[i] = self.reproducer.deserialize_sanitizer_options(result[i])
     self.assertEqual(result, {
         'UBSAN_OPTIONS': {
-            'external_symbolizer_path': '/parent/dir/llvm-symbolizer',
+            'external_symbolizer_path': '/parent/dir/resources/llvm-symbolizer',
             'other_option': '1',
-            'suppressions': '/parent/dir/suppressions/ubsan_suppressions.txt'},
+            'suppressions': '/parent/dir/resources/suppressions/ubsan_suppressions.txt'},
         'LSAN_OPTIONS': {
             'other': '0',
-            'suppressions': '/parent/dir/suppressions/lsan_suppressions.txt',
+            'suppressions': '/parent/dir/resources/suppressions/lsan_suppressions.txt',
             'option': '1'},
-        'UBSAN_SYMBOLIZER_PATH': '/parent/dir/llvm-symbolizer',
+        'UBSAN_SYMBOLIZER_PATH': '/parent/dir/resources/llvm-symbolizer',
         'DISPLAY': ':0.0'})
 
 
@@ -117,13 +117,14 @@ class ReproduceCrashTest(helpers.ExtendedTestCase):
   def setUp(self): #pylint: disable=missing-docstring
     self.setup_fake_filesystem()
     helpers.patch(self, [
-        'clusterfuzz.common.start_execute', 'clusterfuzz.common.wait_execute',
-        'clusterfuzz.common.execute',
-        'clusterfuzz.reproducers.LinuxChromeJobReproducer.run_gestures',
-        'clusterfuzz.reproducers.Blackbox.__enter__',
-        'clusterfuzz.reproducers.Blackbox.__exit__',
-        'clusterfuzz.common.get_location',
-        'clusterfuzz.reproducers.LinuxChromeJobReproducer.post_run_symbolize'])
+        'tool.clusterfuzz.common.start_execute',
+        'tool.clusterfuzz.common.wait_execute',
+        'tool.clusterfuzz.common.execute',
+        'tool.clusterfuzz.reproducers.LinuxChromeJobReproducer.run_gestures',
+        'tool.clusterfuzz.reproducers.Blackbox.__enter__',
+        'tool.clusterfuzz.reproducers.Blackbox.__exit__',
+        'tool.clusterfuzz.common.get_location',
+        'tool.clusterfuzz.reproducers.LinuxChromeJobReproducer.post_run_symbolize'])
     self.mock.get_location.return_value = ('/chrome/source/folder/'
                                            'llvm-symbolizer')
     self.mock.wait_execute.return_value = (0, 'lines')
@@ -207,7 +208,7 @@ class LinuxChromeJobReproducerTest(helpers.ExtendedTestCase):
   def setUp(self):
     self.setup_fake_filesystem()
     helpers.patch(self,
-                  ['clusterfuzz.reproducers.BaseReproducer.pre_build_steps'])
+                  ['tool.clusterfuzz.reproducers.BaseReproducer.pre_build_steps'])
     os.makedirs('/tmp/clusterfuzz-user-profile-data')
     patch_stacktrace_info(self)
     self.reproducer = create_chrome_reproducer()
@@ -227,8 +228,8 @@ class XdotoolCommandTest(helpers.ExtendedTestCase):
   """Tests the xdotool_command method."""
 
   def setUp(self):
-    helpers.patch(self, ['clusterfuzz.common.start_execute',
-                         'clusterfuzz.common.wait_execute'])
+    helpers.patch(self, ['tool.clusterfuzz.common.start_execute',
+                         'tool.clusterfuzz.common.wait_execute'])
     self.mock.start_execute.return_value = mock.Mock()
     patch_stacktrace_info(self)
     self.reproducer = create_chrome_reproducer()
@@ -250,8 +251,8 @@ class FindWindowsForProcessTest(helpers.ExtendedTestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'clusterfuzz.reproducers.LinuxChromeJobReproducer.get_process_ids',
-        'clusterfuzz.common.execute',
+        'tool.clusterfuzz.reproducers.LinuxChromeJobReproducer.get_process_ids',
+        'tool.clusterfuzz.common.execute',
         'time.sleep'])
     patch_stacktrace_info(self)
     self.reproducer = create_chrome_reproducer()
@@ -323,12 +324,12 @@ class RunGesturesTest(helpers.ExtendedTestCase):
   def setUp(self): #pylint: disable=missing-docstring
     helpers.patch(self, [
         'time.sleep',
-        ('clusterfuzz.reproducers.LinuxChromeJobReproducer.get_gesture_start_'
+        ('tool.clusterfuzz.reproducers.LinuxChromeJobReproducer.get_gesture_start_'
          'time'),
-        ('clusterfuzz.reproducers.LinuxChromeJobReproducer.find_windows_for'
+        ('tool.clusterfuzz.reproducers.LinuxChromeJobReproducer.find_windows_for'
          '_process'),
-        'clusterfuzz.reproducers.LinuxChromeJobReproducer.xdotool_command',
-        'clusterfuzz.reproducers.LinuxChromeJobReproducer.execute_gesture'])
+        'tool.clusterfuzz.reproducers.LinuxChromeJobReproducer.xdotool_command',
+        'tool.clusterfuzz.reproducers.LinuxChromeJobReproducer.execute_gesture'])
     patch_stacktrace_info(self)
     self.reproducer = create_chrome_reproducer()
     self.mock.get_gesture_start_time.return_value = 5
@@ -371,7 +372,7 @@ class ExecuteGestureTest(helpers.ExtendedTestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'clusterfuzz.reproducers.LinuxChromeJobReproducer.xdotool_command'])
+        'tool.clusterfuzz.reproducers.LinuxChromeJobReproducer.xdotool_command'])
     patch_stacktrace_info(self)
     self.reproducer = create_chrome_reproducer()
     self.reproducer.gestures = ['windowsize,2', 'type,\'ValeM1khbW4Gt!\'']
@@ -475,8 +476,8 @@ class ReproduceTest(helpers.ExtendedTestCase):
     patch_stacktrace_info(self)
     self.reproducer = create_chrome_reproducer()
     helpers.patch(self, [
-        'clusterfuzz.reproducers.LinuxChromeJobReproducer.reproduce_crash',
-        'clusterfuzz.reproducers.LinuxChromeJobReproducer.post_run_symbolize',
+        'tool.clusterfuzz.reproducers.LinuxChromeJobReproducer.reproduce_crash',
+        'tool.clusterfuzz.reproducers.LinuxChromeJobReproducer.post_run_symbolize',
         'requests.post',
         'time.sleep'])
     self.mock.reproduce_crash.return_value = (0, ['stuff'])
@@ -522,8 +523,8 @@ class PostRunSymbolizeTest(helpers.ExtendedTestCase):
   def setUp(self):
     self.reproducer = create_chrome_reproducer()
     self.reproducer.source_directory = '/path/to/chromium'
-    helpers.patch(self, ['clusterfuzz.common.start_execute',
-                         'clusterfuzz.common.get_location',
+    helpers.patch(self, ['tool.clusterfuzz.common.start_execute',
+                         'tool.clusterfuzz.common.get_location',
                          'os.chmod'])
     self.mock.get_location.return_value = 'asan_sym_proxy.py'
     (self.mock.start_execute.return_value.

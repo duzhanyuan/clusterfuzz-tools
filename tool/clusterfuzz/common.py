@@ -27,7 +27,7 @@ import shutil
 import pkg_resources
 
 from backports.shutil_get_terminal_size import get_terminal_size
-from clusterfuzz import local_logging
+from tool.clusterfuzz import local_logging
 
 CLUSTERFUZZ_DIR = os.path.expanduser(os.path.join('~', '.clusterfuzz'))
 AUTH_HEADER_FILE = os.path.join(CLUSTERFUZZ_DIR, 'auth_header')
@@ -325,10 +325,7 @@ def ask(question, error_message, validate_fn):
 
 def get_location(filepath):
   """Take a relative filepath and return the actual path."""
-
-  resource_package = __name__
-  resource_path = filepath
-  return   pkg_resources.resource_filename(resource_package, resource_path)
+  return pkg_resources.resource_filename(__name__, 'resources/%s' % filepath)
 
 
 def delete_if_exists(path):
