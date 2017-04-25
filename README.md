@@ -17,6 +17,7 @@ Requirement
 ---------------
 
 * [gsutil](https://cloud.google.com/storage/docs/gsutil_install)
+* Blackbox, vncviewer, and x11vnc. You can install it with `sudo apt-get install blackbox vncviewer x11vnc`.
 
 
 Installation

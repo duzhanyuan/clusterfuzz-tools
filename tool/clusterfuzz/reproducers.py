@@ -259,27 +259,34 @@ class Blackbox(object):
   def __enter__(self):
     if self.disable_blackbox:
       return None
+
     self.display = xvfbwrapper.Xvfb(width=1280, height=1024)
     self.display.start()
     for i in self.display.xvfb_cmd:
       if i.startswith(':'):
         display_name = i
         break
+
     logger.info('Starting the blackbox window manager in a virtual display.')
     try:
-      self.blackbox = subprocess.Popen(['blackbox'],
-                                       env={'DISPLAY': display_name})
+      self.blackbox = common.start_execute_delay(
+          'blackbox', '', '.', {'DISPLAY': display_name})
+      self.server = common.start_execute_delay(
+          'x11vnc', '-localhost -forever -display %s' % display_name, '.', {})
+      self.viewer = common.start_execute_delay(
+          'vncviewer', 'localhost', '.', {'DISPLAY': ':0.0'}, delay=5)
     except OSError, e:
       if str(e) == '[Errno 2] No such file or directory':
         raise common.BlackboxNotInstalledError
       raise
 
-    time.sleep(30)
     return display_name
 
   def __exit__(self, unused_type, unused_value, unused_traceback):
     if self.disable_blackbox:
       return
+    self.viewer.kill()
+    self.server.kill()
     self.blackbox.kill()
     self.display.stop()
 
@@ -322,8 +329,8 @@ class LinuxChromeJobReproducer(BaseReproducer):
       return []
 
     logger.info(
-        'Waiting for 20 seconds to ensure all windows (pid=%s, display=%s) '
-        'appear.', pids, display_name)
+        'Waiting for 20 seconds to ensure all windows appear '
+        '(pid=%s, display=%s).', pids, display_name)
     time.sleep(20)
 
     visible_windows = set()
@@ -356,6 +363,7 @@ class LinuxChromeJobReproducer(BaseReproducer):
     """Executes all required gestures."""
 
     time.sleep(self.gesture_start_time)
+
     logger.info('Running gestures...')
     windows = self.find_windows_for_process(proc.pid, display_name)
     for _, window in enumerate(windows):
@@ -365,6 +373,7 @@ class LinuxChromeJobReproducer(BaseReproducer):
       for gesture in self.gestures:
         logger.debug(gesture)
         self.execute_gesture(gesture, window, display_name)
+        time.sleep(0.2)
 
   def pre_build_steps(self):
     """Steps to run before building."""
@@ -411,8 +420,9 @@ class LinuxChromeJobReproducer(BaseReproducer):
 
       self.environment['DISPLAY'] = display_name
       self.environment.pop('ASAN_SYMBOLIZER_PATH', None)
-      process = common.start_execute(command, os.path.dirname(self.binary_path),
-                                     environment=self.environment)
+      process = common.start_execute(
+          command, os.path.dirname(self.binary_path),
+          environment=self.environment, preexec_fn=os.setsid)
       if self.gestures:
         self.run_gestures(process, display_name)
       err, out = common.wait_execute(process, exit_on_error=False, timeout=15)

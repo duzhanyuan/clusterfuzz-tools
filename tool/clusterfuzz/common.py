@@ -231,7 +231,25 @@ def interpret_ninja_output(line):
   print_progress_bar(current, total, prefix='Ninja progress:')
 
 
-def start_execute(command, cwd, environment, print_output=True):
+def start_execute_delay(
+    binary, args, cwd, environment, print_output=True, preexec_fn=None,
+    delay=None):
+
+  try:
+    subprocess.check_output(['which', binary])
+  except subprocess.CalledProcessError:
+    raise Exception("%s doesn't exist. Please install it." % binary)
+
+  command = binary + ' ' + args
+
+  if delay is not None:
+    command = 'sleep %d && %s' % (delay, command)
+
+  return start_execute(command, cwd, environment, print_output, preexec_fn)
+
+
+def start_execute(
+    command, cwd, environment, print_output=True, preexec_fn=None):
   """Runs a command, and returns the subprocess.Popen object."""
 
   environment = environment or {}
@@ -258,7 +276,7 @@ def start_execute(command, cwd, environment, print_output=True):
       stderr=subprocess.STDOUT,
       cwd=cwd,
       env=final_env,
-      preexec_fn=os.setsid)
+      preexec_fn=preexec_fn)
 
 
 def wait_execute(proc, exit_on_error, capture_output=True, print_output=True,
