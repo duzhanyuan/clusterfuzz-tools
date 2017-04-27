@@ -26,6 +26,8 @@ import requests
 import xvfbwrapper
 import psutil
 
+from bedrock import cmd
+
 from clusterfuzz import common
 
 DEFAULT_GESTURE_TIME = 5
@@ -114,9 +116,11 @@ class BaseReproducer(object):
       gesture_start_time = DEFAULT_GESTURE_TIME
     return gesture_start_time
 
-  def __init__(self, binary_provider, testcase, sanitizer, disable_blackbox,
-               target_args):
-    self.testcase_path = testcase.get_testcase_path()
+  def __init__(
+      self, get_binary_path, source_directory, testcase_path, gestures,
+      stacktrace_lines, sanitizer, disable_blackbox, target_args, blackbox_path,
+      gclient_path, xdotool_path):
+    self.testcase_path = testcase_path
     self.job_type = testcase.job_type
     self.environment = testcase.environment
     self.args = testcase.reproduction_args + ' ' + target_args
@@ -124,11 +128,11 @@ class BaseReproducer(object):
     self.symbolizer_path = common.get_resource(
         0755, 'resources', 'llvm-symbolizer')
     self.sanitizer = sanitizer
-    self.gestures = testcase.gestures
+    self.gestures = gestures
     self.disable_blackbox = disable_blackbox
 
     stacktrace_lines = strip_html(
-        [l['content'] for l in testcase.stacktrace_lines])
+        [l['content'] for l in stacktrace_lines])
     stacktrace_lines = get_only_first_stacktrace(stacktrace_lines)
     self.crash_state, self.crash_type = self.get_stacktrace_info(
         '\n'.join(stacktrace_lines))

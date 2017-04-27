@@ -233,7 +233,7 @@ def interpret_ninja_output(line):
 def check_binary(binary):
   """Check if the binary exists."""
   try:
-    subprocess.check_output(['which', binary])
+    return subprocess.check_output(['which', binary])
   except subprocess.CalledProcessError:
     raise NotInstalledError(binary)
 
